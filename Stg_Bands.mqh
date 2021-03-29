@@ -16,7 +16,7 @@ INPUT int Bands_PriceStopMethod = 0;                                // Price sto
 INPUT float Bands_PriceStopLevel = 10;                              // Price stop level
 INPUT int Bands_TickFilterMethod = 1;                               // Tick filter method
 INPUT float Bands_MaxSpread = 4.0;                                  // Max spread to trade (pips)
-INPUT int Bands_Shift = 0;                                          // Shift (relative to the current bar, 0 - default)
+INPUT short Bands_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
 INPUT int Bands_OrderCloseTime = -20;                               // Order close time in mins (>0) or bars (<0)
 INPUT string __Bands_Indi_Bands_Parameters__ =
     "-- Bands strategy: Bands indicator params --";                     // >>> Bands strategy: Bands indicator <<<
