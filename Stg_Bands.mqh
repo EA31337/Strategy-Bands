@@ -97,7 +97,7 @@ class Stg_Bands : public Strategy {
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Chart *_chart = sparams.GetChart();
-    Indi_Bands *_indi = Data();
+    Indi_Bands *_indi = GetIndicator();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
     if (_is_valid) {
@@ -148,7 +148,7 @@ class Stg_Bands : public Strategy {
    * Gets price stop value for profit take or stop loss.
    */
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
-    Indi_Bands *_indi = Data();
+    Indi_Bands *_indi = GetIndicator();
     Chart *_chart = sparams.GetChart();
     double _trail = _level * _chart.GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
