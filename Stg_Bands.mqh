@@ -68,7 +68,7 @@ struct Stg_Bands_Params : StgParams {
 
 class Stg_Bands : public Strategy {
  public:
-  Stg_Bands(StgParams &_params, string _name) : Strategy(_params, _name) {}
+  Stg_Bands(StgParams &_params, Trade *_trade = NULL, string _name = "") : Strategy(_params, _trade, _name) {}
 
   static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
@@ -83,12 +83,9 @@ class Stg_Bands : public Strategy {
     // Initialize indicator.
     BandsParams bands_params(_indi_params);
     _stg_params.SetIndicator(new Indi_Bands(_indi_params));
-    // Initialize strategy parameters.
-    _stg_params.GetLog().SetLevel(_log_level);
-    _stg_params.SetMagicNo(_magic_no);
-    _stg_params.SetTf(_tf, _Symbol);
-    // Initialize strategy instance.
-    Strategy *_strat = new Stg_Bands(_stg_params, "Bands");
+    // Initialize Strategy instance.
+    TradeParams _tparams(_magic_no, _log_level);
+    Strategy *_strat = new Stg_Bands(_stg_params, new Trade(new Chart(_tf, _Symbol)), "Bands");
     return _strat;
   }
 
@@ -96,7 +93,7 @@ class Stg_Bands : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
-    Chart *_chart = sparams.GetChart();
+    Chart *_chart = trade.GetChart();
     Indi_Bands *_indi = GetIndicator();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
@@ -149,7 +146,7 @@ class Stg_Bands : public Strategy {
    */
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_Bands *_indi = GetIndicator();
-    Chart *_chart = sparams.GetChart();
+    Chart *_chart = trade.GetChart();
     double _trail = _level * _chart.GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     double _change_pc = Math::ChangeInPct(_indi[1][(int)BAND_BASE], _indi[0][(int)BAND_BASE]);
