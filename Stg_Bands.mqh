@@ -6,13 +6,13 @@
 // User input params.
 INPUT string __Bands_Parameters__ = "-- Bands strategy params --";  // >>> BANDS <<<
 INPUT float Bands_LotSize = 0;                                      // Lot size
-INPUT int Bands_SignalOpenMethod = 0;                               // Signal open method (-63-63)
+INPUT int Bands_SignalOpenMethod = 2;                               // Signal open method (-127-127)
 INPUT float Bands_SignalOpenLevel = 0.0f;                           // Signal open level (-49-49)
-INPUT int Bands_SignalOpenFilterMethod = 1;                         // Signal open filter method (-49-49)
+INPUT int Bands_SignalOpenFilterMethod = 32;                         // Signal open filter method (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;                          // Signal open boost method (-49-49)
-INPUT int Bands_SignalCloseMethod = 0;                              // Signal close method (-63-63)
+INPUT int Bands_SignalCloseMethod = 2;                              // Signal close method (-127-127)
 INPUT float Bands_SignalCloseLevel = 0.0f;                          // Signal close level (-49-49)
-INPUT int Bands_PriceStopMethod = 0;                                // Price stop method (0-6)
+INPUT int Bands_PriceStopMethod = 1;                                // Price stop method (0-6)
 INPUT float Bands_PriceStopLevel = 10;                              // Price stop level
 INPUT int Bands_TickFilterMethod = 1;                               // Tick filter method
 INPUT float Bands_MaxSpread = 4.0;                                  // Max spread to trade (pips)
@@ -141,56 +141,5 @@ class Stg_Bands : public Strategy {
       }
     }
     return _result;
-  }
-
-  /**
-   * Gets price stop value for profit take or stop loss.
-   */
-  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
-    Indi_Bands *_indi = GetIndicator();
-    Chart *_chart = trade.GetChart();
-    double _trail = _level * _chart.GetPipSize();
-    int _direction = Order::OrderDirection(_cmd, _mode);
-    double _change_pc = Math::ChangeInPct(_indi[1][(int)BAND_BASE], _indi[0][(int)BAND_BASE]);
-    double _default_value = _chart.GetCloseOffer(_cmd) + _trail * _method * _direction;
-    double _price_offer = _chart.GetOpenOffer(_cmd);
-    double _result = _default_value;
-    ENUM_APPLIED_PRICE _ap = _direction > 0 ? PRICE_HIGH : PRICE_LOW;
-    switch (_method) {
-      case 1:
-        _result = (_direction > 0 ? _indi[CURR][(int)BAND_UPPER] : _indi[CURR][(int)BAND_LOWER]) + _trail * _direction;
-        break;
-      case 2:
-        _result = (_direction > 0 ? _indi[PREV][(int)BAND_UPPER] : _indi[PREV][(int)BAND_LOWER]) + _trail * _direction;
-        break;
-      case 3:
-        _result =
-            (_direction > 0 ? _indi[PPREV][(int)BAND_UPPER] : _indi[PPREV][(int)BAND_LOWER]) + _trail * _direction;
-        break;
-      case 4:
-        _result = (_direction > 0 ? fmax(_indi[PREV][(int)BAND_UPPER], _indi[PPREV][(int)BAND_UPPER])
-                                  : fmin(_indi[PREV][(int)BAND_LOWER], _indi[PPREV][(int)BAND_LOWER])) +
-                  _trail * _direction;
-        break;
-      case 5:
-        _result = _indi[CURR][(int)BAND_BASE] + _trail * _direction;
-        break;
-      case 6:
-        _result = _indi[PREV][(int)BAND_BASE] + _trail * _direction;
-        break;
-      case 7:
-        _result = _indi[PPREV][(int)BAND_BASE] + _trail * _direction;
-        break;
-      case 8: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest<double>(_bar_count));
-        break;
-      }
-      case 9:
-        _result = Math::ChangeByPct(_price_offer, (float)(_change_pc / Math::NonZero(_level)));
-        break;
-    }
-    return (float)_result;
   }
 };
