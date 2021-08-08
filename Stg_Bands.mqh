@@ -4,22 +4,21 @@
  */
 
 // User input params.
-INPUT string __Bands_Parameters__ = "-- Bands strategy params --";  // >>> BANDS <<<
-INPUT float Bands_LotSize = 0;                                      // Lot size
-INPUT int Bands_SignalOpenMethod = 2;                               // Signal open method (-127-127)
-INPUT float Bands_SignalOpenLevel = 0.0f;                           // Signal open level (-49-49)
-INPUT int Bands_SignalOpenFilterMethod = 32;                        // Signal open filter method (-49-49)
-INPUT int Bands_SignalOpenBoostMethod = 0;                          // Signal open boost method (-49-49)
-INPUT int Bands_SignalCloseMethod = 2;                              // Signal close method (-127-127)
-INPUT float Bands_SignalCloseLevel = 0.0f;                          // Signal close level (-49-49)
-INPUT int Bands_PriceStopMethod = 1;                                // Price stop method (0-6)
-INPUT float Bands_PriceStopLevel = 10;                              // Price stop level
-INPUT int Bands_TickFilterMethod = 1;                               // Tick filter method
-INPUT float Bands_MaxSpread = 4.0;                                  // Max spread to trade (pips)
-INPUT short Bands_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
-INPUT int Bands_OrderCloseTime = -20;                               // Order close time in mins (>0) or bars (<0)
-INPUT string __Bands_Indi_Bands_Parameters__ =
-    "-- Bands strategy: Bands indicator params --";                     // >>> Bands strategy: Bands indicator <<<
+INPUT_GROUP("Bands strategy: strategy params");
+INPUT float Bands_LotSize = 0;                // Lot size
+INPUT int Bands_SignalOpenMethod = 2;         // Signal open method (-127-127)
+INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level (-49-49)
+INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
+INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method (-49-49)
+INPUT int Bands_SignalCloseMethod = 2;        // Signal close method (-127-127)
+INPUT float Bands_SignalCloseLevel = 0.0f;    // Signal close level (-49-49)
+INPUT int Bands_PriceStopMethod = 1;          // Price stop method (0-6)
+INPUT float Bands_PriceStopLevel = 10;        // Price stop level
+INPUT int Bands_TickFilterMethod = 1;         // Tick filter method
+INPUT float Bands_MaxSpread = 4.0;            // Max spread to trade (pips)
+INPUT short Bands_Shift = 0;                  // Shift (relative to the current bar, 0 - default)
+INPUT int Bands_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
+INPUT_GROUP("Bands strategy: Bands indicator params");
 INPUT int Bands_Indi_Bands_Period = 2;                                  // Period
 INPUT float Bands_Indi_Bands_Deviation = 0.3f;                          // Deviation
 INPUT int Bands_Indi_Bands_HShift = 0;                                  // Horizontal shift
