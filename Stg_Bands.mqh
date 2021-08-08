@@ -18,6 +18,8 @@ INPUT float Bands_PriceStopLevel = 10;        // Price stop level
 INPUT int Bands_TickFilterMethod = 1;         // Tick filter method
 INPUT float Bands_MaxSpread = 4.0;            // Max spread to trade (pips)
 INPUT short Bands_Shift = 0;                  // Shift (relative to the current bar, 0 - default)
+INPUT float Bands_OrderCloseLoss = 0;         // Order close loss
+INPUT float Bands_OrderCloseProfit = 0;       // Order close profit
 INPUT int Bands_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("Bands strategy: Bands indicator params");
 INPUT int Bands_Indi_Bands_Period = 2;                                  // Period
@@ -41,7 +43,11 @@ struct Stg_Bands_Params_Defaults : StgParams {
       : StgParams(::Bands_SignalOpenMethod, ::Bands_SignalOpenFilterMethod, ::Bands_SignalOpenLevel,
                   ::Bands_SignalOpenBoostMethod, ::Bands_SignalCloseMethod, ::Bands_SignalCloseFilter,
                   ::Bands_SignalCloseLevel, ::Bands_PriceStopMethod, ::Bands_PriceStopLevel, ::Bands_TickFilterMethod,
-                  ::Bands_MaxSpread, ::Bands_Shift, ::Bands_OrderCloseTime) {}
+                  ::Bands_MaxSpread, ::Bands_Shift) {
+    Set(STRAT_PARAM_OCL, Bands_OrderCloseLoss);
+    Set(STRAT_PARAM_OCP, Bands_OrderCloseProfit);
+    Set(STRAT_PARAM_OCT, Bands_OrderCloseTime);
+  }
 } stg_bands_defaults;
 
 // Struct to define strategy parameters to override.
