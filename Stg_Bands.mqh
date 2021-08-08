@@ -11,6 +11,7 @@ INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level (-49-49)
 INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method (-49-49)
 INPUT int Bands_SignalCloseMethod = 2;        // Signal close method (-127-127)
+INPUT int Bands_SignalCloseFilter = 0;        // Signal close filter (-127-127)
 INPUT float Bands_SignalCloseLevel = 0.0f;    // Signal close level (-49-49)
 INPUT int Bands_PriceStopMethod = 1;          // Price stop method (0-6)
 INPUT float Bands_PriceStopLevel = 10;        // Price stop level
@@ -38,9 +39,9 @@ struct Indi_Bands_Params_Defaults : BandsParams {
 struct Stg_Bands_Params_Defaults : StgParams {
   Stg_Bands_Params_Defaults()
       : StgParams(::Bands_SignalOpenMethod, ::Bands_SignalOpenFilterMethod, ::Bands_SignalOpenLevel,
-                  ::Bands_SignalOpenBoostMethod, ::Bands_SignalCloseMethod, ::Bands_SignalCloseLevel,
-                  ::Bands_PriceStopMethod, ::Bands_PriceStopLevel, ::Bands_TickFilterMethod, ::Bands_MaxSpread,
-                  ::Bands_Shift, ::Bands_OrderCloseTime) {}
+                  ::Bands_SignalOpenBoostMethod, ::Bands_SignalCloseMethod, ::Bands_SignalCloseFilter,
+                  ::Bands_SignalCloseLevel, ::Bands_PriceStopMethod, ::Bands_PriceStopLevel, ::Bands_TickFilterMethod,
+                  ::Bands_MaxSpread, ::Bands_Shift, ::Bands_OrderCloseTime) {}
 } stg_bands_defaults;
 
 // Struct to define strategy parameters to override.
