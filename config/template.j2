@@ -20,7 +20,7 @@ struct Stg_Bands_Params_{{ Timeframe }} : StgParams {
   Stg_Bands_Params_{{ Timeframe }}() : StgParams(stg_bands_defaults) {
     lot_size = {{ Bands_LotSize | default(0) }};
     signal_open_method = {{ Bands_SignalOpenMethod | default(0) }};
-    signal_open_filter = {{ Bands_SignalOpenFilterMethod | default(1) }};
+    signal_open_filter_method = {{ Bands_SignalOpenFilterMethod | default(1) }};
     signal_open_level = (float){{ Bands_SignalOpenLevel | default(0) }};
     signal_open_boost = {{ Bands_SignalOpenBoostMethod | default(0) }};
     signal_close_method = {{ Bands_SignalCloseMethod | default(0) }};
