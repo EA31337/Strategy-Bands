@@ -9,6 +9,7 @@ INPUT float Bands_LotSize = 0;                // Lot size
 INPUT int Bands_SignalOpenMethod = 2;         // Signal open method (-127-127)
 INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level (-49-49)
 INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
+INPUT int Bands_SignalOpenFilterTime = 6;     // Signal open filter time (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method (-49-49)
 INPUT int Bands_SignalCloseMethod = 2;        // Signal close method (-127-127)
 INPUT int Bands_SignalCloseFilter = 0;        // Signal close filter (-127-127)
@@ -47,6 +48,7 @@ struct Stg_Bands_Params_Defaults : StgParams {
     Set(STRAT_PARAM_OCL, Bands_OrderCloseLoss);
     Set(STRAT_PARAM_OCP, Bands_OrderCloseProfit);
     Set(STRAT_PARAM_OCT, Bands_OrderCloseTime);
+    Set(STRAT_PARAM_SOFT, Bands_SignalOpenFilterTime);
   }
 } stg_bands_defaults;
 
