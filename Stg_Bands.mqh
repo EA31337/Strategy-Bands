@@ -6,12 +6,12 @@
 // User input params.
 INPUT_GROUP("Bands strategy: strategy params");
 INPUT float Bands_LotSize = 0;                // Lot size
-INPUT int Bands_SignalOpenMethod = 2;         // Signal open method (-127-127)
+INPUT int Bands_SignalOpenMethod = 4;         // Signal open method (-127-127)
 INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level (-49-49)
 INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
 INPUT int Bands_SignalOpenFilterTime = 6;     // Signal open filter time (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method
-INPUT int Bands_SignalCloseMethod = 2;        // Signal close method (-127-127)
+INPUT int Bands_SignalCloseMethod = 0;        // Signal close method (-127-127)
 INPUT int Bands_SignalCloseFilter = 0;        // Signal close filter (-127-127)
 INPUT float Bands_SignalCloseLevel = 0.0f;    // Signal close level (-49-49)
 INPUT int Bands_PriceStopMethod = 1;          // Price stop method (0-6)
@@ -23,11 +23,11 @@ INPUT float Bands_OrderCloseLoss = 0;         // Order close loss
 INPUT float Bands_OrderCloseProfit = 0;       // Order close profit
 INPUT int Bands_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("Bands strategy: Bands indicator params");
-INPUT int Bands_Indi_Bands_Period = 2;                                  // Period
-INPUT float Bands_Indi_Bands_Deviation = 0.3f;                          // Deviation
-INPUT int Bands_Indi_Bands_HShift = 0;                                  // Horizontal shift
-INPUT ENUM_APPLIED_PRICE Bands_Indi_Bands_Applied_Price = PRICE_CLOSE;  // Applied Price
-INPUT int Bands_Indi_Bands_Shift = 0;                                   // Shift
+INPUT int Bands_Indi_Bands_Period = 24;                                // Period
+INPUT float Bands_Indi_Bands_Deviation = 1.0f;                         // Deviation
+INPUT int Bands_Indi_Bands_HShift = 0;                                 // Horizontal shift
+INPUT ENUM_APPLIED_PRICE Bands_Indi_Bands_Applied_Price = PRICE_OPEN;  // Applied Price
+INPUT int Bands_Indi_Bands_Shift = 0;                                  // Shift
 
 // Structs.
 
@@ -105,7 +105,7 @@ class Stg_Bands : public Strategy {
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Chart *_chart = trade.GetChart();
     Indi_Bands *_indi = GetIndicator();
-    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID);
+    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 0) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 1);
     if (!_result) {
       // Returns false when indicator data is not valid.
       return false;
@@ -136,7 +136,7 @@ class Stg_Bands : public Strategy {
         double highest_price = fmin3(_chart.GetHigh(CURR), _chart.GetHigh(PREV), _chart.GetHigh(PPREV));
         _result = (highest_price >
                    fmin3(_indi[CURR][(int)BAND_UPPER], _indi[PREV][(int)BAND_UPPER], _indi[PPREV][(int)BAND_UPPER]));
-        _result &= _change_pc < _level;
+        _result &= _change_pc < -_level;
         if (_result && _method != 0) {
           if (METHOD(_method, 0)) _result &= fmin(Close[PREV], Close[PPREV]) > _indi[CURR][(int)BAND_UPPER];
           if (METHOD(_method, 1)) _result &= (_indi[CURR][(int)BAND_LOWER] < _indi[PPREV][(int)BAND_LOWER]);
