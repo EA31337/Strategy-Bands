@@ -21,7 +21,7 @@ INPUT float Bands_MaxSpread = 4.0;            // Max spread to trade (pips)
 INPUT short Bands_Shift = 0;                  // Shift (relative to the current bar, 0 - default)
 INPUT float Bands_OrderCloseLoss = 0;         // Order close loss
 INPUT float Bands_OrderCloseProfit = 0;       // Order close profit
-INPUT int Bands_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
+INPUT int Bands_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("Bands strategy: Bands indicator params");
 INPUT int Bands_Indi_Bands_Period = 24;                                // Period
 INPUT float Bands_Indi_Bands_Deviation = 1.0f;                         // Deviation
