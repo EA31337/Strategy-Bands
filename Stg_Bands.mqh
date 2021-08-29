@@ -45,6 +45,7 @@ struct Stg_Bands_Params_Defaults : StgParams {
                   ::Bands_SignalOpenBoostMethod, ::Bands_SignalCloseMethod, ::Bands_SignalCloseFilter,
                   ::Bands_SignalCloseLevel, ::Bands_PriceStopMethod, ::Bands_PriceStopLevel, ::Bands_TickFilterMethod,
                   ::Bands_MaxSpread, ::Bands_Shift) {
+    Set(STRAT_PARAM_LS, Bands_LotSize);
     Set(STRAT_PARAM_OCL, Bands_OrderCloseLoss);
     Set(STRAT_PARAM_OCP, Bands_OrderCloseProfit);
     Set(STRAT_PARAM_OCT, Bands_OrderCloseTime);
