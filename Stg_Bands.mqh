@@ -82,7 +82,6 @@ class Stg_Bands : public Strategy {
                              stg_bands_h4, stg_bands_h8);
 #endif
     // Initialize indicator.
-    BandsParams bands_params(_indi_params);
     _stg_params.SetIndicator(new Indi_Bands(_indi_params));
     // Initialize Strategy instance.
     ChartParams _cparams(_tf, _Symbol);
