@@ -36,7 +36,7 @@ struct Indi_Bands_Params_Defaults : BandsParams {
   Indi_Bands_Params_Defaults()
       : BandsParams(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
                     ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift) {}
-} indi_bands_defaults;
+};
 
 // Defines struct with default user strategy values.
 struct Stg_Bands_Params_Defaults : StgParams {
@@ -51,7 +51,7 @@ struct Stg_Bands_Params_Defaults : StgParams {
     Set(STRAT_PARAM_OCT, Bands_OrderCloseTime);
     Set(STRAT_PARAM_SOFT, Bands_SignalOpenFilterTime);
   }
-} stg_bands_defaults;
+};
 
 #ifdef __config__
 // Loads pair specific param values.
@@ -71,7 +71,9 @@ class Stg_Bands : public Strategy {
 
   static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
+    Indi_Bands_Params_Defaults indi_bands_defaults;
     BandsParams _indi_params(indi_bands_defaults, _tf);
+    Stg_Bands_Params_Defaults stg_bands_defaults;
     StgParams _stg_params(stg_bands_defaults);
 #ifdef __config__
     SetParamsByTf<BandsParams>(_indi_params, _tf, indi_bands_m1, indi_bands_m5, indi_bands_m15, indi_bands_m30,
