@@ -32,10 +32,10 @@ INPUT int Bands_Indi_Bands_Shift = 0;                                  // Shift
 // Structs.
 
 // Defines struct with default user indicator values.
-struct Indi_Bands_Params_Defaults : BandsParams {
+struct Indi_Bands_Params_Defaults : IndiBandsParams {
   Indi_Bands_Params_Defaults()
-      : BandsParams(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
-                    ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift) {}
+      : IndiBandsParams(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
+                        ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift) {}
 };
 
 // Defines struct with default user strategy values.
@@ -72,12 +72,12 @@ class Stg_Bands : public Strategy {
   static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
     Indi_Bands_Params_Defaults indi_bands_defaults;
-    BandsParams _indi_params(indi_bands_defaults, _tf);
+    IndiBandsParams _indi_params(indi_bands_defaults, _tf);
     Stg_Bands_Params_Defaults stg_bands_defaults;
     StgParams _stg_params(stg_bands_defaults);
 #ifdef __config__
-    SetParamsByTf<BandsParams>(_indi_params, _tf, indi_bands_m1, indi_bands_m5, indi_bands_m15, indi_bands_m30,
-                               indi_bands_h1, indi_bands_h4, indi_bands_h8);
+    SetParamsByTf<IndiBandsParams>(_indi_params, _tf, indi_bands_m1, indi_bands_m5, indi_bands_m15, indi_bands_m30,
+                                   indi_bands_h1, indi_bands_h4, indi_bands_h8);
     SetParamsByTf<StgParams>(_stg_params, _tf, stg_bands_m1, stg_bands_m5, stg_bands_m15, stg_bands_m30, stg_bands_h1,
                              stg_bands_h4, stg_bands_h8);
 #endif

@@ -4,8 +4,8 @@
  */
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
-struct Indi_Bands_Params_M15 : BandsParams {
-  Indi_Bands_Params_M15() : BandsParams(indi_bands_defaults, PERIOD_M15) {
+struct Indi_Bands_Params_M15 : IndiBandsParams {
+  Indi_Bands_Params_M15() : IndiBandsParams(indi_bands_defaults, PERIOD_M15) {
     applied_price = (ENUM_APPLIED_PRICE)0;
     bshift = 6;
     deviation = 0.2;
