@@ -71,13 +71,9 @@ class Stg_Bands : public Strategy {
 
   static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
-    Indi_Bands_Params_Defaults indi_bands_defaults;
-    IndiBandsParams _indi_params(indi_bands_defaults, _tf);
     Stg_Bands_Params_Defaults stg_bands_defaults;
     StgParams _stg_params(stg_bands_defaults);
 #ifdef __config__
-    SetParamsByTf<IndiBandsParams>(_indi_params, _tf, indi_bands_m1, indi_bands_m5, indi_bands_m15, indi_bands_m30,
-                                   indi_bands_h1, indi_bands_h4, indi_bands_h8);
     SetParamsByTf<StgParams>(_stg_params, _tf, stg_bands_m1, stg_bands_m5, stg_bands_m15, stg_bands_m30, stg_bands_h1,
                              stg_bands_h4, stg_bands_h8);
 #endif
@@ -86,8 +82,16 @@ class Stg_Bands : public Strategy {
     ChartParams _cparams(_tf, _Symbol);
     TradeParams _tparams;
     Strategy *_strat = new Stg_Bands(_stg_params, _tparams, _cparams, "Bands");
-    _strat.SetIndicator(new Indi_Bands(_indi_params));
     return _strat;
+  }
+
+  /**
+   * Event on strategy's init.
+   */
+  void OnInit() {
+    Indi_Bands_Params_Defaults indi_bands_defaults;
+    IndiBandsParams _indi_params(indi_bands_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    SetIndicator(new Indi_Bands(_indi_params));
   }
 
   /**
