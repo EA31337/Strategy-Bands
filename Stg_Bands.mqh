@@ -31,13 +31,6 @@ INPUT int Bands_Indi_Bands_Shift = 0;                                  // Shift
 
 // Structs.
 
-// Defines struct with default user indicator values.
-struct Indi_Bands_Params_Defaults : IndiBandsParams {
-  Indi_Bands_Params_Defaults()
-      : IndiBandsParams(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
-                        ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift) {}
-};
-
 // Defines struct with default user strategy values.
 struct Stg_Bands_Params_Defaults : StgParams {
   Stg_Bands_Params_Defaults()
@@ -89,8 +82,9 @@ class Stg_Bands : public Strategy {
    * Event on strategy's init.
    */
   void OnInit() {
-    Indi_Bands_Params_Defaults indi_bands_defaults;
-    IndiBandsParams _indi_params(indi_bands_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    IndiBandsParams _indi_params(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
+                                 ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift);
+    _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
     SetIndicator(new Indi_Bands(_indi_params));
   }
 
