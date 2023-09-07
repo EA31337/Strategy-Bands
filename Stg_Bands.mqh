@@ -11,17 +11,17 @@ enum ENUM_STG_BANDS_TYPE {
 
 // User input params.
 INPUT_GROUP("Bands strategy: main strategy params");
-INPUT ENUM_STG_BANDS_TYPE Bands_Type = STG_BANDS_TYPE_BBANDS;  // Bands' Indicator type
+INPUT ENUM_STG_BANDS_TYPE Bands_Type = STG_BANDS_TYPE_BBANDS;  // Indicator type
 INPUT_GROUP("Bands strategy: strategy params");
 INPUT float Bands_LotSize = 0;                // Lot size
-INPUT int Bands_SignalOpenMethod = 3;         // Signal open method (-255-255)
-INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level
+INPUT int Bands_SignalOpenMethod = 1;         // Signal open method (-255-255)
+INPUT float Bands_SignalOpenLevel = 2.0f;     // Signal open level
 INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
 INPUT int Bands_SignalOpenFilterTime = 3;     // Signal open filter time (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method
-INPUT int Bands_SignalCloseMethod = 3;        // Signal close method (-255-255)
+INPUT int Bands_SignalCloseMethod = 1;        // Signal close method (-255-255)
 INPUT int Bands_SignalCloseFilter = 0;        // Signal close filter (-127-127)
-INPUT float Bands_SignalCloseLevel = 0.0f;    // Signal close level
+INPUT float Bands_SignalCloseLevel = 2.0f;    // Signal close level
 INPUT int Bands_PriceStopMethod = 1;          // Price stop method (0-6)
 INPUT float Bands_PriceStopLevel = 2;         // Price stop level
 INPUT int Bands_TickFilterMethod = 32;        // Tick filter method
@@ -164,14 +164,16 @@ class Stg_Bands : public Strategy {
     int _mode_lower = ssparams.GetModeLower();
     int _mode_upper = ssparams.GetModeUpper();
     double _change_pc = Math::ChangeInPct(_indi[1][(int)_mode_base], _indi[0][(int)_mode_base], true);
+    float _level_pips = (float)(_level * _chart.GetPipSize());
     switch (_cmd) {
       // Buy: price crossed lower line upwards (returned to it from below).
       case ORDER_TYPE_BUY: {
         // Price value was lower than the lower band.
         double lowest_price = fmin3(_chart.GetLow(_ishift), _chart.GetLow(_ishift + 1), _chart.GetLow(_ishift + 2));
-        _result = (lowest_price < fmax3(_indi[_ishift][(int)_mode_lower], _indi[_ishift + 1][(int)_mode_lower],
-                                        _indi[_ishift + 2][(int)_mode_lower]));
-        _result &= _change_pc > _level;
+        _result =
+            (lowest_price + _level_pips < fmax3(_indi[_ishift][(int)_mode_lower], _indi[_ishift + 1][(int)_mode_lower],
+                                                _indi[_ishift + 2][(int)_mode_lower]));
+        // _result &= _change_pc > _level;
         if (_result && _method != 0) {
           if (METHOD(_method, 0))
             _result &= fmax4(_indi[_ishift][(int)_mode_base], _indi[_ishift + 1][(int)_mode_base],
@@ -193,9 +195,10 @@ class Stg_Bands : public Strategy {
       case ORDER_TYPE_SELL: {
         // Price value was higher than the upper band.
         double highest_price = fmax3(_chart.GetHigh(_ishift), _chart.GetHigh(_ishift + 1), _chart.GetHigh(_ishift + 2));
-        _result = (highest_price > fmin3(_indi[_ishift][(int)_mode_upper], _indi[_ishift + 1][(int)_mode_upper],
-                                         _indi[_ishift + 2][(int)_mode_upper]));
-        _result &= _change_pc < -_level;
+        _result =
+            (highest_price - _level_pips > fmin3(_indi[_ishift][(int)_mode_upper], _indi[_ishift + 1][(int)_mode_upper],
+                                                 _indi[_ishift + 2][(int)_mode_upper]));
+        // _result &= _change_pc < -_level;
         if (_result && _method != 0) {
           if (METHOD(_method, 0))
             _result &= fmin4(_indi[_ishift][(int)_mode_base], _indi[_ishift + 1][(int)_mode_base],
