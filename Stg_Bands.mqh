@@ -188,7 +188,7 @@ class Stg_Bands : public Strategy {
       // Sell: price crossed upper line downwards (returned to it from above).
       case ORDER_TYPE_SELL: {
         // Price value was higher than the upper band.
-        double highest_price = fmin3(_chart.GetHigh(_ishift), _chart.GetHigh(_ishift + 1), _chart.GetHigh(_ishift + 2));
+        double highest_price = fmax3(_chart.GetHigh(_ishift), _chart.GetHigh(_ishift + 1), _chart.GetHigh(_ishift + 2));
         _result = (highest_price > fmin3(_indi[_ishift][(int)_mode_upper], _indi[_ishift + 1][(int)_mode_upper],
                                          _indi[_ishift + 2][(int)_mode_upper]));
         _result &= _change_pc < -_level;
