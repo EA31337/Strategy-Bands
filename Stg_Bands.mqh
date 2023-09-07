@@ -1,9 +1,17 @@
 /**
  * @file
- * Implements Bands strategy based on the Bollinger Bands indicator.
+ * Implements Bands strategy based on the price range indicators.
  */
 
+enum ENUM_STG_BANDS_TYPE {
+  STG_BANDS_TYPE_0_NONE = 0,  // (None)
+  STG_BANDS_TYPE_BBANDS,      // Bollinger Bands
+  STG_BANDS_TYPE_ENVELOPES,   // Envelopes
+};
+
 // User input params.
+INPUT_GROUP("Bands strategy: main strategy params");
+INPUT ENUM_STG_BANDS_TYPE Bands_Type = STG_BANDS_TYPE_BBANDS;  // Bands' Indicator type
 INPUT_GROUP("Bands strategy: strategy params");
 INPUT float Bands_LotSize = 0;                // Lot size
 INPUT int Bands_SignalOpenMethod = 4;         // Signal open method (-127-127)
@@ -22,12 +30,25 @@ INPUT short Bands_Shift = 0;                  // Shift (relative to the current 
 INPUT float Bands_OrderCloseLoss = 80;        // Order close loss
 INPUT float Bands_OrderCloseProfit = 80;      // Order close profit
 INPUT int Bands_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
-INPUT_GROUP("Bands strategy: Bands indicator params");
+INPUT_GROUP("Bands strategy: Bollinger Bands indicator params");
 INPUT int Bands_Indi_Bands_Period = 24;                                // Period
 INPUT float Bands_Indi_Bands_Deviation = 1.0f;                         // Deviation
 INPUT int Bands_Indi_Bands_HShift = 0;                                 // Horizontal shift
 INPUT ENUM_APPLIED_PRICE Bands_Indi_Bands_Applied_Price = PRICE_OPEN;  // Applied Price
 INPUT int Bands_Indi_Bands_Shift = 0;                                  // Shift
+INPUT ENUM_BANDS_LINE Bands_Indi_Bands_Mode_Base = BAND_BASE;          // Mode for base band
+INPUT ENUM_BANDS_LINE Bands_Indi_Bands_Mode_Lower = BAND_LOWER;        // Mode for lower band
+INPUT ENUM_BANDS_LINE Bands_Indi_Bands_Mode_Upper = BAND_UPPER;        // Mode for upper band
+INPUT_GROUP("Bands strategy: Envelopes indicator params");
+INPUT int Bands_Indi_Envelopes_MA_Period = 20;                             // Period
+INPUT int Bands_Indi_Envelopes_MA_Shift = 0;                               // MA Shift
+INPUT ENUM_MA_METHOD Bands_Indi_Envelopes_MA_Method = (ENUM_MA_METHOD)1;   // MA Method
+INPUT ENUM_APPLIED_PRICE Bands_Indi_Envelopes_Applied_Price = PRICE_OPEN;  // Applied Price
+INPUT float Bands_Indi_Envelopes_Deviation = 0.1f;                         // Deviation
+INPUT int Bands_Indi_Envelopes_Shift = 0;                                  // Shift
+INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Base = BAND_BASE;          // Mode for base band
+INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Lower = BAND_LOWER;        // Mode for lower band
+INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Upper = BAND_UPPER;        // Mode for upper band
 
 // Structs.
 
@@ -62,7 +83,7 @@ class Stg_Bands : public Strategy {
   Stg_Bands(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL, EA* _ea = NULL) {
+  static Stg_Bands *Init(ENUM_TIMEFRAMES _tf = NULL, EA *_ea = NULL) {
     // Initialize strategy initial values.
     Stg_Bands_Params_Defaults stg_bands_defaults;
     StgParams _stg_params(stg_bands_defaults);
@@ -82,10 +103,29 @@ class Stg_Bands : public Strategy {
    * Event on strategy's init.
    */
   void OnInit() {
-    IndiBandsParams _indi_params(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
-                                 ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift);
-    _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
-    SetIndicator(new Indi_Bands(_indi_params));
+    // Initialize indicators.
+    switch (Bands_Type) {
+      case STG_BANDS_TYPE_BBANDS:  // Bollinger Bands
+      {
+        IndiBandsParams _indi_params(::Bands_Indi_Bands_Period, ::Bands_Indi_Bands_Deviation, ::Bands_Indi_Bands_HShift,
+                                     ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift);
+        _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+        SetIndicator(new Indi_Bands(_indi_params), ::Bands_Type);
+        break;
+      }
+      case STG_BANDS_TYPE_ENVELOPES:  // Envelopes
+      {
+        IndiEnvelopesParams _indi_params(::Bands_Indi_Envelopes_MA_Period, ::Bands_Indi_Envelopes_MA_Shift,
+                                         ::Bands_Indi_Envelopes_MA_Method, ::Bands_Indi_Envelopes_Applied_Price,
+                                         ::Bands_Indi_Envelopes_Deviation, ::Bands_Indi_Envelopes_Shift);
+        _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+        SetIndicator(new Indi_Envelopes(_indi_params), ::Bands_Type);
+        break;
+      }
+      case STG_BANDS_TYPE_0_NONE:  // (None)
+      default:
+        break;
+    }
   }
 
   /**
