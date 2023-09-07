@@ -46,14 +46,15 @@ INPUT ENUM_MA_METHOD Bands_Indi_Envelopes_MA_Method = (ENUM_MA_METHOD)1;   // MA
 INPUT ENUM_APPLIED_PRICE Bands_Indi_Envelopes_Applied_Price = PRICE_OPEN;  // Applied Price
 INPUT float Bands_Indi_Envelopes_Deviation = 0.1f;                         // Deviation
 INPUT int Bands_Indi_Envelopes_Shift = 0;                                  // Shift
-INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Base = BAND_BASE;          // Mode for base band
-INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Lower = BAND_LOWER;        // Mode for lower band
-INPUT ENUM_BANDS_LINE Bands_Indi_Envelopes_Mode_Upper = BAND_UPPER;        // Mode for upper band
+INPUT ENUM_SIGNAL_LINE Bands_Indi_Envelopes_Mode_Base = LINE_MAIN;         // Mode for base band
+INPUT ENUM_LO_UP_LINE Bands_Indi_Envelopes_Mode_Lower = LINE_LOWER;        // Mode for lower band
+INPUT ENUM_LO_UP_LINE Bands_Indi_Envelopes_Mode_Upper = LINE_UPPER;        // Mode for upper band
 
 // Structs.
 
 // Defines struct with default user strategy values.
 struct Stg_Bands_Params_Defaults : StgParams {
+  int mode_base, mode_lower, mode_upper;
   Stg_Bands_Params_Defaults()
       : StgParams(::Bands_SignalOpenMethod, ::Bands_SignalOpenFilterMethod, ::Bands_SignalOpenLevel,
                   ::Bands_SignalOpenBoostMethod, ::Bands_SignalCloseMethod, ::Bands_SignalCloseFilter,
@@ -65,6 +66,14 @@ struct Stg_Bands_Params_Defaults : StgParams {
     Set(STRAT_PARAM_OCT, Bands_OrderCloseTime);
     Set(STRAT_PARAM_SOFT, Bands_SignalOpenFilterTime);
   }
+  // Getters.
+  int GetModeBase() { return mode_base; }
+  int GetModeLower() { return mode_lower; }
+  int GetModeUpper() { return mode_upper; }
+  // Setters.
+  void SetModeBase(int _value) { mode_base = _value; }
+  void SetModeLower(int _value) { mode_lower = _value; }
+  void SetModeUpper(int _value) { mode_upper = _value; }
 };
 
 #ifdef __config__
@@ -79,6 +88,9 @@ struct Stg_Bands_Params_Defaults : StgParams {
 #endif
 
 class Stg_Bands : public Strategy {
+ protected:
+  Stg_Bands_Params_Defaults ssparams;
+
  public:
   Stg_Bands(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
@@ -111,6 +123,9 @@ class Stg_Bands : public Strategy {
                                      ::Bands_Indi_Bands_Applied_Price, ::Bands_Indi_Bands_Shift);
         _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
         SetIndicator(new Indi_Bands(_indi_params), ::Bands_Type);
+        ssparams.SetModeBase(::Bands_Indi_Bands_Mode_Base);
+        ssparams.SetModeLower(::Bands_Indi_Bands_Mode_Lower);
+        ssparams.SetModeUpper(::Bands_Indi_Bands_Mode_Upper);
         break;
       }
       case STG_BANDS_TYPE_ENVELOPES:  // Envelopes
@@ -120,6 +135,9 @@ class Stg_Bands : public Strategy {
                                          ::Bands_Indi_Envelopes_Deviation, ::Bands_Indi_Envelopes_Shift);
         _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
         SetIndicator(new Indi_Envelopes(_indi_params), ::Bands_Type);
+        ssparams.SetModeBase(::Bands_Indi_Envelopes_Mode_Base);
+        ssparams.SetModeLower(::Bands_Indi_Envelopes_Mode_Lower);
+        ssparams.SetModeUpper(::Bands_Indi_Envelopes_Mode_Upper);
         break;
       }
       case STG_BANDS_TYPE_0_NONE:  // (None)
@@ -132,48 +150,58 @@ class Stg_Bands : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
-    Indi_Bands *_indi = GetIndicator();
+    IndicatorBase *_indi = GetIndicator(Bands_Type);
     Chart *_chart = (Chart *)_indi;
-    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 0) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 1);
+    // bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 0) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, 1); //
+    // @fixme
+    bool _result = true;
     if (!_result) {
       // Returns false when indicator data is not valid.
       return false;
     }
-    double _change_pc = Math::ChangeInPct(_indi[1][(int)BAND_BASE], _indi[0][(int)BAND_BASE], true);
+    int _ishift = _shift;
+    int _mode_base = ssparams.GetModeBase();
+    int _mode_lower = ssparams.GetModeLower();
+    int _mode_upper = ssparams.GetModeUpper();
+    double _change_pc = Math::ChangeInPct(_indi[1][(int)_mode_base], _indi[0][(int)_mode_base], true);
     switch (_cmd) {
       // Buy: price crossed lower line upwards (returned to it from below).
       case ORDER_TYPE_BUY: {
         // Price value was lower than the lower band.
-        double lowest_price = fmin3(_chart.GetLow(CURR), _chart.GetLow(PREV), _chart.GetLow(PPREV));
-        _result = (lowest_price <
-                   fmax3(_indi[CURR][(int)BAND_LOWER], _indi[PREV][(int)BAND_LOWER], _indi[PPREV][(int)BAND_LOWER]));
+        double lowest_price = fmin3(_chart.GetLow(_ishift), _chart.GetLow(_ishift + 1), _chart.GetLow(_ishift + 2));
+        _result = (lowest_price < fmax3(_indi[_ishift][(int)_mode_lower], _indi[_ishift + 1][(int)_mode_lower],
+                                        _indi[_ishift + 2][(int)_mode_lower]));
         _result &= _change_pc > _level;
         if (_result && _method != 0) {
-          if (METHOD(_method, 0)) _result &= fmin(Close[PREV], Close[PPREV]) < _indi[CURR][(int)BAND_LOWER];
-          if (METHOD(_method, 1)) _result &= (_indi[CURR][(int)BAND_LOWER] > _indi[PPREV][(int)BAND_LOWER]);
-          if (METHOD(_method, 2)) _result &= (_indi[CURR][(int)BAND_BASE] > _indi[PPREV][(int)BAND_BASE]);
-          if (METHOD(_method, 3)) _result &= (_indi[CURR][(int)BAND_UPPER] > _indi[PPREV][(int)BAND_UPPER]);
-          if (METHOD(_method, 4)) _result &= lowest_price < _indi[CURR][(int)BAND_BASE];
-          if (METHOD(_method, 5)) _result &= Open[CURR] < _indi[CURR][(int)BAND_BASE];
-          if (METHOD(_method, 6)) _result &= fmin(Close[PREV], Close[PPREV]) > _indi[CURR][(int)BAND_BASE];
+          if (METHOD(_method, 0))
+            _result &= fmin(Close[_ishift + 1], Close[_ishift + 2]) < _indi[_ishift][(int)_mode_lower];
+          if (METHOD(_method, 1)) _result &= (_indi[_ishift][(int)_mode_lower] > _indi[_ishift + 2][(int)_mode_lower]);
+          if (METHOD(_method, 2)) _result &= (_indi[_ishift][(int)_mode_base] > _indi[_ishift + 2][(int)_mode_base]);
+          if (METHOD(_method, 3)) _result &= (_indi[_ishift][(int)_mode_upper] > _indi[_ishift + 2][(int)_mode_upper]);
+          if (METHOD(_method, 4)) _result &= lowest_price < _indi[_ishift][(int)_mode_base];
+          if (METHOD(_method, 5)) _result &= Open[_ishift] < _indi[_ishift][(int)_mode_base];
+          if (METHOD(_method, 6))
+            _result &= fmin(Close[_ishift + 1], Close[_ishift + 2]) > _indi[_ishift][(int)_mode_base];
         }
         break;
       }
       // Sell: price crossed upper line downwards (returned to it from above).
       case ORDER_TYPE_SELL: {
         // Price value was higher than the upper band.
-        double highest_price = fmin3(_chart.GetHigh(CURR), _chart.GetHigh(PREV), _chart.GetHigh(PPREV));
-        _result = (highest_price >
-                   fmin3(_indi[CURR][(int)BAND_UPPER], _indi[PREV][(int)BAND_UPPER], _indi[PPREV][(int)BAND_UPPER]));
+        double highest_price = fmin3(_chart.GetHigh(_ishift), _chart.GetHigh(_ishift + 1), _chart.GetHigh(_ishift + 2));
+        _result = (highest_price > fmin3(_indi[_ishift][(int)_mode_upper], _indi[_ishift + 1][(int)_mode_upper],
+                                         _indi[_ishift + 2][(int)_mode_upper]));
         _result &= _change_pc < -_level;
         if (_result && _method != 0) {
-          if (METHOD(_method, 0)) _result &= fmin(Close[PREV], Close[PPREV]) > _indi[CURR][(int)BAND_UPPER];
-          if (METHOD(_method, 1)) _result &= (_indi[CURR][(int)BAND_LOWER] < _indi[PPREV][(int)BAND_LOWER]);
-          if (METHOD(_method, 2)) _result &= (_indi[CURR][(int)BAND_BASE] < _indi[PPREV][(int)BAND_BASE]);
-          if (METHOD(_method, 3)) _result &= (_indi[CURR][(int)BAND_UPPER] < _indi[PPREV][(int)BAND_UPPER]);
-          if (METHOD(_method, 4)) _result &= highest_price > _indi[CURR][(int)BAND_BASE];
-          if (METHOD(_method, 5)) _result &= Open[CURR] > _indi[CURR][(int)BAND_BASE];
-          if (METHOD(_method, 6)) _result &= fmin(Close[PREV], Close[PPREV]) < _indi[CURR][(int)BAND_BASE];
+          if (METHOD(_method, 0))
+            _result &= fmin(Close[_ishift + 1], Close[_ishift + 2]) > _indi[_ishift][(int)_mode_upper];
+          if (METHOD(_method, 1)) _result &= (_indi[_ishift][(int)_mode_lower] < _indi[_ishift + 2][(int)_mode_lower]);
+          if (METHOD(_method, 2)) _result &= (_indi[_ishift][(int)_mode_base] < _indi[_ishift + 2][(int)_mode_base]);
+          if (METHOD(_method, 3)) _result &= (_indi[_ishift][(int)_mode_upper] < _indi[_ishift + 2][(int)_mode_upper]);
+          if (METHOD(_method, 4)) _result &= highest_price > _indi[_ishift][(int)_mode_base];
+          if (METHOD(_method, 5)) _result &= Open[_ishift] > _indi[_ishift][(int)_mode_base];
+          if (METHOD(_method, 6))
+            _result &= fmin(Close[_ishift + 1], Close[_ishift + 2]) < _indi[_ishift][(int)_mode_base];
         }
         break;
       }
