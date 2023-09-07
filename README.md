@@ -6,7 +6,7 @@
 [![Discuss][gh-discuss-badge]][gh-discuss-link]
 [![License][license-image]][license-link]
 
-Strategy based on the Bollinger Bands indicator.
+Strategy based based on the price range (bands) indicators.
 
 ## Dependencies
 
@@ -15,8 +15,9 @@ Strategy based on the Bollinger Bands indicator.
 | v1.000   | v2.000    |
 | v1.001   | v2.001    |
 | ...      | ...       |
-| v1.009   | v2.009    |
-| v1.010   | v2.010    |
+| v1.012   | v2.012    |
+| v1.013   | v2.013    |
+| v2.000   | v3.000.1  |
 
 <!-- Named links -->
 
