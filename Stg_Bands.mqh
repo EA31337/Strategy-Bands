@@ -14,12 +14,12 @@ INPUT_GROUP("Bands strategy: main strategy params");
 INPUT ENUM_STG_BANDS_TYPE Bands_Type = STG_BANDS_TYPE_BBANDS;  // Bands' Indicator type
 INPUT_GROUP("Bands strategy: strategy params");
 INPUT float Bands_LotSize = 0;                // Lot size
-INPUT int Bands_SignalOpenMethod = 4;         // Signal open method (-127-127)
+INPUT int Bands_SignalOpenMethod = 1;         // Signal open method (-127-127)
 INPUT float Bands_SignalOpenLevel = 0.0f;     // Signal open level (-49-49)
 INPUT int Bands_SignalOpenFilterMethod = 32;  // Signal open filter method (-49-49)
 INPUT int Bands_SignalOpenFilterTime = 3;     // Signal open filter time (-49-49)
 INPUT int Bands_SignalOpenBoostMethod = 0;    // Signal open boost method
-INPUT int Bands_SignalCloseMethod = 0;        // Signal close method (-127-127)
+INPUT int Bands_SignalCloseMethod = 1;        // Signal close method (-127-127)
 INPUT int Bands_SignalCloseFilter = 0;        // Signal close filter (-127-127)
 INPUT float Bands_SignalCloseLevel = 0.0f;    // Signal close level (-49-49)
 INPUT int Bands_PriceStopMethod = 1;          // Price stop method (0-6)
